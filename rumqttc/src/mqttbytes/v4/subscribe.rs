@@ -1,4 +1,5 @@
 use super::*;
+use crate::init_trace_id;
 use bytes::{Buf, Bytes};
 
 /// Subscription packet
@@ -6,6 +7,7 @@ use bytes::{Buf, Bytes};
 pub struct Subscribe {
     pub pkid: u16,
     pub filters: Vec<SubscribeFilter>,
+    pub trace_id: u32,
 }
 
 impl Subscribe {
@@ -18,6 +20,7 @@ impl Subscribe {
         Subscribe {
             pkid: 0,
             filters: vec![filter],
+            trace_id: init_trace_id(),
         }
     }
 
@@ -27,7 +30,11 @@ impl Subscribe {
     {
         let filters: Vec<SubscribeFilter> = topics.into_iter().collect();
 
-        Subscribe { pkid: 0, filters }
+        Subscribe {
+            pkid: 0,
+            filters,
+            trace_id: init_trace_id(),
+        }
     }
 
     pub fn add(&mut self, path: String, qos: QoS) -> &mut Self {
@@ -64,7 +71,11 @@ impl Subscribe {
 
         match filters.len() {
             0 => Err(Error::EmptySubscription),
-            _ => Ok(Subscribe { pkid, filters }),
+            _ => Ok(Subscribe {
+                pkid,
+                filters,
+                trace_id: 0,
+            }),
         }
     }
 
@@ -187,6 +198,7 @@ mod test {
                     SubscribeFilter::new("#".to_owned(), QoS::AtLeastOnce),
                     SubscribeFilter::new("a/b/c".to_owned(), QoS::ExactlyOnce)
                 ],
+                trace_id: 0,
             }
         );
     }
@@ -200,6 +212,7 @@ mod test {
                 SubscribeFilter::new("#".to_owned(), QoS::AtLeastOnce),
                 SubscribeFilter::new("a/b/c".to_owned(), QoS::ExactlyOnce),
             ],
+            trace_id: 0,
         };
 
         let mut buf = BytesMut::new();

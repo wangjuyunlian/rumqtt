@@ -239,8 +239,9 @@ impl MqttState {
             self.inflight += 1;
 
             let pkid = publish.pkid;
+            let trace_id = publish.trace_id;
             Packet::Publish(publish, None).write(&mut self.write)?;
-            let event = Event::Outgoing(Outgoing::Publish(pkid));
+            let event = Event::Outgoing(Outgoing::Publish(pkid, trace_id));
             self.events.push_back(event);
             self.collision_ping_count = 0;
         }
@@ -293,7 +294,7 @@ impl MqttState {
         if let Some(publish) = self.check_collision(pubcomp.pkid) {
             let pkid = publish.pkid;
             Packet::Publish(publish, None).write(&mut self.write)?;
-            let event = Event::Outgoing(Outgoing::Publish(pkid));
+            let event = Event::Outgoing(Outgoing::Publish(pkid, 0));
             self.events.push_back(event);
             self.collision_ping_count = 0;
         }
@@ -355,8 +356,9 @@ impl MqttState {
         );
 
         let pkid = publish.pkid;
+        let trace_id = publish.trace_id;
         Packet::Publish(publish, None).write(&mut self.write)?;
-        let event = Event::Outgoing(Outgoing::Publish(pkid));
+        let event = Event::Outgoing(Outgoing::Publish(pkid, trace_id));
         self.events.push_back(event);
         Ok(())
     }
@@ -437,8 +439,9 @@ impl MqttState {
         );
 
         let pkid = subscription.pkid;
+        let trace_id = subscription.trace_id;
         Packet::Subscribe(subscription, None).write(&mut self.write)?;
-        let event = Event::Outgoing(Outgoing::Subscribe(pkid));
+        let event = Event::Outgoing(Outgoing::Subscribe(pkid, trace_id));
         self.events.push_back(event);
         Ok(())
     }
@@ -453,8 +456,9 @@ impl MqttState {
         );
 
         let pkid = unsub.pkid;
+        let trace_id = unsub.trace_id;
         Packet::Unsubscribe(unsub).write(&mut self.write)?;
-        let event = Event::Outgoing(Outgoing::Unsubscribe(pkid));
+        let event = Event::Outgoing(Outgoing::Unsubscribe(pkid, trace_id));
         self.events.push_back(event);
         Ok(())
     }

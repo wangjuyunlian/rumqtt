@@ -235,7 +235,7 @@ impl MqttState {
             self.inflight += 1;
 
             publish.write(&mut self.write)?;
-            let event = Event::Outgoing(Outgoing::Publish(publish.pkid));
+            let event = Event::Outgoing(Outgoing::Publish(publish.pkid, publish.trace_id));
             self.events.push_back(event);
             self.collision_ping_count = 0;
         }
@@ -287,7 +287,7 @@ impl MqttState {
     fn handle_incoming_pubcomp(&mut self, pubcomp: &PubComp) -> Result<(), StateError> {
         if let Some(publish) = self.check_collision(pubcomp.pkid) {
             publish.write(&mut self.write)?;
-            let event = Event::Outgoing(Outgoing::Publish(publish.pkid));
+            let event = Event::Outgoing(Outgoing::Publish(publish.pkid, publish.trace_id));
             self.events.push_back(event);
             self.collision_ping_count = 0;
         }
@@ -349,7 +349,7 @@ impl MqttState {
         );
 
         publish.write(&mut self.write)?;
-        let event = Event::Outgoing(Outgoing::Publish(publish.pkid));
+        let event = Event::Outgoing(Outgoing::Publish(publish.pkid, publish.trace_id));
         self.events.push_back(event);
         Ok(())
     }
@@ -428,7 +428,10 @@ impl MqttState {
         );
 
         subscription.write(&mut self.write)?;
-        let event = Event::Outgoing(Outgoing::Subscribe(subscription.pkid));
+        let event = Event::Outgoing(Outgoing::Subscribe(
+            subscription.pkid,
+            subscription.trace_id,
+        ));
         self.events.push_back(event);
         Ok(())
     }
@@ -443,7 +446,7 @@ impl MqttState {
         );
 
         unsub.write(&mut self.write)?;
-        let event = Event::Outgoing(Outgoing::Unsubscribe(unsub.pkid));
+        let event = Event::Outgoing(Outgoing::Unsubscribe(unsub.pkid, unsub.trace_id));
         self.events.push_back(event);
         Ok(())
     }

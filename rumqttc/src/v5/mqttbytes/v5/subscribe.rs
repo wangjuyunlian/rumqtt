@@ -31,7 +31,14 @@ pub fn read(
 
     match filters.len() {
         0 => Err(Error::EmptySubscription),
-        _ => Ok((Subscribe { pkid, filters }, properties)),
+        _ => Ok((
+            Subscribe {
+                pkid,
+                filters,
+                ..Default::default()
+            },
+            properties,
+        )),
     }
 }
 

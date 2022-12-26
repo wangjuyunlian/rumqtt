@@ -51,6 +51,7 @@ pub fn read(
         pkid,
         topic,
         payload: bytes,
+        trace_id: 0,
     };
 
     Ok((publish, properties))

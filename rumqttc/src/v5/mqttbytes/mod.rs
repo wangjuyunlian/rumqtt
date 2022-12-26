@@ -161,6 +161,7 @@ pub struct Publish {
     pub topic: Bytes,
     pub pkid: u16,
     pub payload: Bytes,
+    pub trace_id: u32,
 }
 
 impl Publish {
@@ -222,6 +223,7 @@ impl Publish {
             topic,
             pkid,
             payload,
+            trace_id: 0,
         }
     }
 }
@@ -283,6 +285,7 @@ pub struct PubAckProperties {
 pub struct Subscribe {
     pub pkid: u16,
     pub filters: Vec<Filter>,
+    pub trace_id: u32,
 }
 
 impl Subscribe {
@@ -393,6 +396,7 @@ pub struct SubAckProperties {
 pub struct Unsubscribe {
     pub pkid: u16,
     pub filters: Vec<String>,
+    pub trace_id: u32,
 }
 
 impl Unsubscribe {

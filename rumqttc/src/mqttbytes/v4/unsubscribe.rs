@@ -1,4 +1,5 @@
 use super::*;
+use crate::init_trace_id;
 use bytes::{Buf, Bytes};
 
 /// Unsubscribe packet
@@ -6,6 +7,7 @@ use bytes::{Buf, Bytes};
 pub struct Unsubscribe {
     pub pkid: u16,
     pub topics: Vec<String>,
+    pub trace_id: u32,
 }
 
 impl Unsubscribe {
@@ -13,6 +15,7 @@ impl Unsubscribe {
         Unsubscribe {
             pkid: 0,
             topics: vec![topic.into()],
+            trace_id: init_trace_id(),
         }
     }
 
@@ -30,7 +33,11 @@ impl Unsubscribe {
             topics.push(topic_filter);
         }
 
-        let unsubscribe = Unsubscribe { pkid, topics };
+        let unsubscribe = Unsubscribe {
+            pkid,
+            topics,
+            trace_id: 0,
+        };
         Ok(unsubscribe)
     }
 

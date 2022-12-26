@@ -34,7 +34,11 @@ pub fn read(
         filters.push(filter);
     }
 
-    let unsubscribe = Unsubscribe { pkid, filters };
+    let unsubscribe = Unsubscribe {
+        pkid,
+        filters,
+        trace_id: 0,
+    };
     Ok((unsubscribe, properties))
 }
 
