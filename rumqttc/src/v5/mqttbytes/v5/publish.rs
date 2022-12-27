@@ -1,4 +1,5 @@
 use super::*;
+use crate::init_trace_id;
 use bytes::{Buf, Bytes};
 
 pub fn len(publish: &Publish, properties: &Option<PublishProperties>) -> usize {
@@ -51,7 +52,7 @@ pub fn read(
         pkid,
         topic,
         payload: bytes,
-        trace_id: 0,
+        trace_id: init_trace_id(),
     };
 
     Ok((publish, properties))

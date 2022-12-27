@@ -821,7 +821,12 @@ impl Debug for MqttOptions {
 static TRACE_IDS: AtomicU32 = AtomicU32::new(0);
 
 fn init_trace_id() -> u32 {
-    TRACE_IDS.fetch_add(1, Ordering::Relaxed)
+    let id = TRACE_IDS.fetch_add(1, Ordering::Acquire);
+    if id == 0 {
+        TRACE_IDS.fetch_add(1, Ordering::Relaxed)
+    } else {
+        id
+    }
 }
 
 #[cfg(test)]

@@ -1,5 +1,6 @@
 use std::{str::Utf8Error, vec};
 
+use crate::init_trace_id;
 /// This module is the place where all the protocol specifics gets abstracted
 /// out and creates a structures which are common across protocols. Since,
 /// MQTT is the core protocol that this broker supports, a lot of structs closely
@@ -171,6 +172,7 @@ impl Publish {
             qos,
             topic,
             payload: payload.into(),
+            trace_id: init_trace_id(),
             ..Default::default()
         }
     }
@@ -223,7 +225,7 @@ impl Publish {
             topic,
             pkid,
             payload,
-            trace_id: 0,
+            trace_id: init_trace_id(),
         }
     }
 }
@@ -292,6 +294,7 @@ impl Subscribe {
     pub fn new(filter: Filter) -> Self {
         Self {
             filters: vec![filter],
+            trace_id: init_trace_id(),
             ..Default::default()
         }
     }
@@ -302,6 +305,7 @@ impl Subscribe {
     {
         Self {
             filters: filters.into_iter().collect(),
+            trace_id: init_trace_id(),
             ..Default::default()
         }
     }
@@ -403,6 +407,7 @@ impl Unsubscribe {
     pub fn new<S: Into<String>>(filter: S) -> Self {
         Self {
             filters: vec![filter.into()],
+            trace_id: init_trace_id(),
             ..Default::default()
         }
     }
