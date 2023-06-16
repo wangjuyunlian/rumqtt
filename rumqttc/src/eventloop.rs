@@ -189,7 +189,12 @@ impl EventLoop {
             // outgoing requests (along with 1b).
             o = self.requests_rx.recv_async(), if !inflight_full && !pending && !collision => match o {
                 Ok(request) => {
-                    self.state.handle_outgoing_packet(request)?;
+                    debug!("self.requests_rx.recv_async()");
+                    let rs = self.state.handle_outgoing_packet(request);
+                    if let Err(e) = &rs {
+                        error!("{:?}", e);
+                    }
+                    rs?;
                     network.flush(&mut self.state.write).await?;
                     Ok(self.state.events.pop_front().unwrap())
                 }
@@ -198,7 +203,14 @@ impl EventLoop {
             // Handle the next pending packet from previous session. Disable
             // this branch when done with all the pending packets
             Some(request) = next_pending(throttle, &mut self.pending), if pending => {
-                self.state.handle_outgoing_packet(request)?;
+                // debug!("next_pending");
+                // self.state.handle_outgoing_packet(request)?;
+                debug!("next_pending");
+                let rs = self.state.handle_outgoing_packet(request);
+                if let Err(e) = &rs {
+                    error!("{:?}", e);
+                }
+                rs?;
                 network.flush(&mut self.state.write).await?;
                 Ok(self.state.events.pop_front().unwrap())
             },

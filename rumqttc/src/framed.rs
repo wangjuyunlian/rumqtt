@@ -110,8 +110,16 @@ impl Network {
         if write.is_empty() {
             return Ok(());
         }
+        debug!("flush bytes {}, split to read", write.len());
 
-        self.socket.write_all(&write[..]).await?;
+        let buffer = write.split_to(write.len());
+
+        let rs = self.socket.write_all(&buffer[..]).await;
+        if let Err(e) = &rs {
+            error!("self.socket.write_all fail {:?}", e);
+        }
+        rs?;
+        debug!("socket.write_all = {}", buffer.len());
         write.clear();
         Ok(())
     }

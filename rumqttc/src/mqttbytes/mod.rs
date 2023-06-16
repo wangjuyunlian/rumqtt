@@ -295,7 +295,7 @@ fn write_remaining_length(stream: &mut BytesMut, len: usize) -> Result<usize, Er
         if x > 0 {
             byte |= 128;
         }
-
+        // debug!("x={}, byte={:x}", x, byte);
         stream.put_u8(byte);
         count += 1;
         done = x == 0;
