@@ -160,8 +160,6 @@ impl EventLoop {
             o = network.readb(&mut self.state) => {
                 o?;
                 // flush all the acks and return first incoming packet
-                network.flush(&mut self.state.write).await?;
-                Ok(self.state.events.pop_front().unwrap())
             },
             // Pull next request from user requests channel.
             // If conditions in the below branch are for flow control. We read next user
@@ -195,10 +193,10 @@ impl EventLoop {
                         error!("{:?}", e);
                     }
                     rs?;
-                    network.flush(&mut self.state.write).await?;
-                    Ok(self.state.events.pop_front().unwrap())
+                    // network.flush(&mut self.state.write).await?;
+                    // Ok(self.state.events.pop_front().unwrap())
                 }
-                Err(_) => Err(ConnectionError::RequestsDone),
+                Err(_) => return Err(ConnectionError::RequestsDone),
             },
             // Handle the next pending packet from previous session. Disable
             // this branch when done with all the pending packets
@@ -211,8 +209,8 @@ impl EventLoop {
                     error!("{:?}", e);
                 }
                 rs?;
-                network.flush(&mut self.state.write).await?;
-                Ok(self.state.events.pop_front().unwrap())
+                // network.flush(&mut self.state.write).await?;
+                // Ok(self.state.events.pop_front().unwrap())
             },
             // We generate pings irrespective of network activity. This keeps the ping logic
             // simple. We can change this behavior in future if necessary (to prevent extra pings)
@@ -221,10 +219,12 @@ impl EventLoop {
                 timeout.as_mut().reset(Instant::now() + self.options.keep_alive);
 
                 self.state.handle_outgoing_packet(Request::PingReq)?;
-                network.flush(&mut self.state.write).await?;
-                Ok(self.state.events.pop_front().unwrap())
+                // network.flush(&mut self.state.write).await?;
+                // Ok(self.state.events.pop_front().unwrap())
             }
         }
+        network.flush(&mut self.state.write).await?;
+        Ok(self.state.events.pop_front().unwrap())
     }
 }
 
