@@ -254,12 +254,13 @@ impl AsyncClient {
         topic: S,
         qos: QoS,
         properties: Option<SubscribeProperties>,
-    ) -> Result<(), ClientError> {
+    ) -> Result<u32, ClientError> {
         let filter = Filter::new(topic, qos);
         let subscribe = Subscribe::new(filter, properties);
+        let trace_id = subscribe.trace_id;
         let request: Request = Request::Subscribe(subscribe);
         self.request_tx.send_async(request).await?;
-        Ok(())
+        Ok(trace_id)
     }
 
     pub async fn subscribe_with_properties<S: Into<String>>(
@@ -267,11 +268,11 @@ impl AsyncClient {
         topic: S,
         qos: QoS,
         properties: SubscribeProperties,
-    ) -> Result<(), ClientError> {
+    ) -> Result<u32, ClientError> {
         self.handle_subscribe(topic, qos, Some(properties)).await
     }
 
-    pub async fn subscribe<S: Into<String>>(&self, topic: S, qos: QoS) -> Result<(), ClientError> {
+    pub async fn subscribe<S: Into<String>>(&self, topic: S, qos: QoS) -> Result<u32, ClientError> {
         self.handle_subscribe(topic, qos, None).await
     }
 
@@ -376,22 +377,23 @@ impl AsyncClient {
         &self,
         topic: S,
         properties: Option<UnsubscribeProperties>,
-    ) -> Result<(), ClientError> {
+    ) -> Result<u32, ClientError> {
         let unsubscribe = Unsubscribe::new(topic, properties);
+        let trace_id = unsubscribe.trace_id;
         let request = Request::Unsubscribe(unsubscribe);
         self.request_tx.send_async(request).await?;
-        Ok(())
+        Ok(trace_id)
     }
 
     pub async fn unsubscribe_with_properties<S: Into<String>>(
         &self,
         topic: S,
         properties: UnsubscribeProperties,
-    ) -> Result<(), ClientError> {
+    ) -> Result<u32, ClientError> {
         self.handle_unsubscribe(topic, Some(properties)).await
     }
 
-    pub async fn unsubscribe<S: Into<String>>(&self, topic: S) -> Result<(), ClientError> {
+    pub async fn unsubscribe<S: Into<String>>(&self, topic: S) -> Result<u32, ClientError> {
         self.handle_unsubscribe(topic, None).await
     }
 
