@@ -288,13 +288,15 @@ impl Network {
 
 fn outgoing(packet: &Packet) -> Outgoing {
     match packet {
-        Packet::Publish(publish) => Outgoing::Publish(publish.pkid),
+        Packet::Publish(publish) => Outgoing::Publish(publish.pkid, publish.trace_id),
         Packet::PubAck(puback) => Outgoing::PubAck(puback.pkid),
         Packet::PubRec(pubrec) => Outgoing::PubRec(pubrec.pkid),
         Packet::PubRel(pubrel) => Outgoing::PubRel(pubrel.pkid),
         Packet::PubComp(pubcomp) => Outgoing::PubComp(pubcomp.pkid),
-        Packet::Subscribe(subscribe) => Outgoing::Subscribe(subscribe.pkid),
-        Packet::Unsubscribe(unsubscribe) => Outgoing::Unsubscribe(unsubscribe.pkid),
+        Packet::Subscribe(subscribe) => Outgoing::Subscribe(subscribe.pkid, subscribe.trace_id),
+        Packet::Unsubscribe(unsubscribe) => {
+            Outgoing::Unsubscribe(unsubscribe.pkid, unsubscribe.trace_id)
+        }
         Packet::PingReq => Outgoing::PingReq,
         Packet::PingResp => Outgoing::PingResp,
         Packet::Disconnect => Outgoing::Disconnect,
