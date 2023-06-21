@@ -99,6 +99,7 @@
 extern crate log;
 
 use std::fmt::{self, Debug, Formatter};
+use std::sync::atomic::{AtomicU32, Ordering};
 #[cfg(feature = "use-rustls")]
 use std::sync::Arc;
 use std::time::Duration;
@@ -144,11 +145,11 @@ pub type Incoming = Packet;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Outgoing {
     /// Publish packet with packet identifier. 0 implies QoS 0
-    Publish(u16),
+    Publish(u16, u32),
     /// Subscribe packet with packet identifier
-    Subscribe(u16),
+    Subscribe(u16, u32),
     /// Unsubscribe packet with packet identifier
-    Unsubscribe(u16),
+    Unsubscribe(u16, u32),
     /// PubAck packet
     PubAck(u16),
     /// PubRec packet
@@ -863,6 +864,17 @@ impl Debug for MqttOptions {
             .field("last_will", &self.last_will)
             .field("manual_acks", &self.manual_acks)
             .finish()
+    }
+}
+
+static TRACE_IDS: AtomicU32 = AtomicU32::new(0);
+
+fn init_trace_id() -> u32 {
+    let id = TRACE_IDS.fetch_add(1, Ordering::Acquire);
+    if id == 0 {
+        TRACE_IDS.fetch_add(1, Ordering::Relaxed)
+    } else {
+        id
     }
 }
 

@@ -1,4 +1,5 @@
 use super::*;
+use crate::init_trace_id;
 use bytes::{Buf, Bytes};
 
 /// Publish packet
@@ -10,6 +11,7 @@ pub struct Publish {
     pub topic: String,
     pub pkid: u16,
     pub payload: Bytes,
+    pub trace_id: u32,
 }
 
 impl Publish {
@@ -21,6 +23,7 @@ impl Publish {
             pkid: 0,
             topic: topic.into(),
             payload: Bytes::from(payload.into()),
+            trace_id: init_trace_id(),
         }
     }
 
@@ -32,6 +35,7 @@ impl Publish {
             pkid: 0,
             topic: topic.into(),
             payload,
+            trace_id: 0,
         }
     }
 
@@ -77,6 +81,7 @@ impl Publish {
             pkid,
             topic,
             payload: bytes,
+            trace_id: 0,
         };
 
         Ok(publish)
@@ -166,6 +171,7 @@ mod test {
                 topic: "a/b".to_owned(),
                 pkid: 10,
                 payload: Bytes::from(&payload[..]),
+                trace_id: 0,
             }
         );
     }
@@ -202,6 +208,7 @@ mod test {
                 topic: "a/b".to_owned(),
                 pkid: 0,
                 payload: Bytes::from(&[0x01, 0x02][..]),
+                trace_id: 0,
             }
         );
     }
@@ -215,6 +222,7 @@ mod test {
             topic: "a/b".to_owned(),
             pkid: 10,
             payload: Bytes::from(vec![0xF1, 0xF2, 0xF3, 0xF4]),
+            trace_id: 0,
         };
 
         let mut buf = BytesMut::new();
@@ -249,6 +257,7 @@ mod test {
             topic: "a/b".to_owned(),
             pkid: 0,
             payload: Bytes::from(vec![0xE1, 0xE2, 0xE3, 0xE4]),
+            trace_id: 0,
         };
 
         let mut buf = BytesMut::new();

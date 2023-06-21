@@ -1,4 +1,5 @@
 use super::*;
+use crate::init_trace_id;
 use bytes::{Buf, Bytes};
 
 /// Publish packet
@@ -11,6 +12,7 @@ pub struct Publish {
     pub pkid: u16,
     pub payload: Bytes,
     pub properties: Option<PublishProperties>,
+    pub trace_id: u32,
 }
 
 impl Publish {
@@ -26,6 +28,7 @@ impl Publish {
             topic,
             payload: payload.into(),
             properties,
+            trace_id: init_trace_id(),
             ..Default::default()
         }
     }
@@ -85,6 +88,7 @@ impl Publish {
             topic,
             payload: bytes,
             properties,
+            trace_id: 0,
         };
 
         Ok(publish)

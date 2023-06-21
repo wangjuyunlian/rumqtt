@@ -1,4 +1,5 @@
 use super::*;
+use crate::init_trace_id;
 use bytes::{Buf, Bytes};
 
 /// Subscription packet
@@ -7,6 +8,7 @@ pub struct Subscribe {
     pub pkid: u16,
     pub filters: Vec<Filter>,
     pub properties: Option<SubscribeProperties>,
+    pub trace_id: u32,
 }
 
 impl Subscribe {
@@ -14,6 +16,7 @@ impl Subscribe {
         Self {
             filters: vec![filter],
             properties,
+            trace_id: init_trace_id(),
             ..Default::default()
         }
     }
@@ -25,6 +28,7 @@ impl Subscribe {
         Self {
             filters: filters.into_iter().collect(),
             properties,
+            trace_id: init_trace_id(),
             ..Default::default()
         }
     }
@@ -67,6 +71,7 @@ impl Subscribe {
                 pkid,
                 filters,
                 properties,
+                trace_id: 0,
             }),
         }
     }

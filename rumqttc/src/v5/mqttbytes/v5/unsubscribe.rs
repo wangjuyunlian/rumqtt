@@ -1,4 +1,5 @@
 use super::*;
+use crate::init_trace_id;
 use bytes::{Buf, Bytes};
 
 /// Unsubscribe packet
@@ -7,6 +8,7 @@ pub struct Unsubscribe {
     pub pkid: u16,
     pub filters: Vec<String>,
     pub properties: Option<UnsubscribeProperties>,
+    pub trace_id: u32,
 }
 
 impl Unsubscribe {
@@ -14,6 +16,7 @@ impl Unsubscribe {
         Self {
             filters: vec![filter.into()],
             properties,
+            trace_id: init_trace_id(),
             ..Default::default()
         }
     }
@@ -59,6 +62,7 @@ impl Unsubscribe {
             pkid,
             filters,
             properties,
+            trace_id: 0,
         };
         Ok(unsubscribe)
     }

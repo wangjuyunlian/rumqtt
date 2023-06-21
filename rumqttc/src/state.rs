@@ -248,7 +248,7 @@ impl MqttState {
             self.inflight += 1;
 
             publish.write(&mut self.write)?;
-            let event = Event::Outgoing(Outgoing::Publish(publish.pkid));
+            let event = Event::Outgoing(Outgoing::Publish(publish.pkid, publish.trace_id));
             self.events.push_back(event);
             self.collision_ping_count = 0;
         }
@@ -300,7 +300,7 @@ impl MqttState {
     fn handle_incoming_pubcomp(&mut self, pubcomp: &PubComp) -> Result<(), StateError> {
         if let Some(publish) = self.check_collision(pubcomp.pkid) {
             publish.write(&mut self.write)?;
-            let event = Event::Outgoing(Outgoing::Publish(publish.pkid));
+            let event = Event::Outgoing(Outgoing::Publish(publish.pkid, publish.trace_id));
             self.events.push_back(event);
             self.collision_ping_count = 0;
         }
@@ -362,7 +362,7 @@ impl MqttState {
         );
 
         publish.write(&mut self.write)?;
-        let event = Event::Outgoing(Outgoing::Publish(publish.pkid));
+        let event = Event::Outgoing(Outgoing::Publish(publish.pkid, publish.trace_id));
         self.events.push_back(event);
         Ok(())
     }
@@ -441,7 +441,10 @@ impl MqttState {
         );
 
         subscription.write(&mut self.write)?;
-        let event = Event::Outgoing(Outgoing::Subscribe(subscription.pkid));
+        let event = Event::Outgoing(Outgoing::Subscribe(
+            subscription.pkid,
+            subscription.trace_id,
+        ));
         self.events.push_back(event);
         Ok(())
     }
@@ -456,7 +459,7 @@ impl MqttState {
         );
 
         unsub.write(&mut self.write)?;
-        let event = Event::Outgoing(Outgoing::Unsubscribe(unsub.pkid));
+        let event = Event::Outgoing(Outgoing::Unsubscribe(unsub.pkid, unsub.trace_id));
         self.events.push_back(event);
         Ok(())
     }
@@ -529,6 +532,7 @@ impl MqttState {
 #[cfg(test)]
 mod test {
     use super::{MqttState, StateError};
+    use crate::init_trace_id;
     use crate::mqttbytes::v4::*;
     use crate::mqttbytes::*;
     use crate::{Event, Incoming, Outgoing, Request};
@@ -871,6 +875,7 @@ mod test {
                     topic: "test".to_string(),
                     pkid: 1,
                     payload: "".into(),
+                    trace_id: init_trace_id(),
                 }),
                 Some(Publish {
                     dup: false,
@@ -879,6 +884,7 @@ mod test {
                     topic: "test".to_string(),
                     pkid: 2,
                     payload: "".into(),
+                    trace_id: init_trace_id(),
                 }),
                 Some(Publish {
                     dup: false,
@@ -887,6 +893,7 @@ mod test {
                     topic: "test".to_string(),
                     pkid: 3,
                     payload: "".into(),
+                    trace_id: init_trace_id(),
                 }),
                 None,
                 None,
@@ -897,6 +904,7 @@ mod test {
                     topic: "test".to_string(),
                     pkid: 6,
                     payload: "".into(),
+                    trace_id: init_trace_id(),
                 }),
             ]
         }
